@@ -1,0 +1,65 @@
+import numpy as np
+
+# Define the sigmoid activation function and its derivative
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def sigmoid_derivative(x):
+    return x * (1 - x)
+
+# Define the dataset
+X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+y = np.array([[0], [1], [1], [0]])
+
+# Initialize the neural network architecture
+input_size = 2
+hidden_size = 4
+output_size = 1
+
+# Initialize weights and biases
+input_layer = np.random.rand(input_size, hidden_size)
+output_layer = np.random.rand(hidden_size, output_size)
+hidden_layer_bias = np.zeros((1, hidden_size))
+output_layer_bias = np.zeros((1, output_size))
+
+# Set learning rate and number of epochs
+learning_rate = 0.1
+epochs = 10000
+
+# Training the neural network
+for epoch in range(epochs):
+    # Forward pass
+    hidden_layer_input = np.dot(X, input_layer) + hidden_layer_bias
+    hidden_layer_output = sigmoid(hidden_layer_input)
+    output_layer_input = np.dot(hidden_layer_output, output_layer) + output_layer_bias
+    output_layer_output = sigmoid(output_layer_input)
+
+    # Calculate the loss
+    error = y - output_layer_output
+
+    # Backpropagation
+    d_output = error * sigmoid_derivative(output_layer_output)
+    error_hidden_layer = d_output.dot(output_layer.T)
+    d_hidden_layer = error_hidden_layer * sigmoid_derivative(hidden_layer_output)
+
+    # Update weights and biases
+    output_layer += hidden_layer_output.T.dot(d_output) * learning_rate
+    output_layer_bias += np.sum(d_output, axis=0, keepdims=True) * learning_rate
+    input_layer += X.T.dot(d_hidden_layer) * learning_rate
+    hidden_layer_bias += np.sum(d_hidden_layer, axis=0, keepdims=True) * learning_rate
+
+    if epoch % 1000 == 0:
+        loss = np.mean(np.abs(error))
+        print(f"Epoch {epoch}: Loss {loss}")
+
+# Testing the trained network
+hidden_layer_input = np.dot(X, input_layer) + hidden_layer_bias
+hidden_layer_output = sigmoid(hidden_layer_input)
+output_layer_input = np.dot(hidden_layer_output, output_layer) + output_layer_bias
+predicted_output = sigmoid(output_layer_input)
+
+print("Predicted Output:")
+print(predicted_output)
+
+ 
+
